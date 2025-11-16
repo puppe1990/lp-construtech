@@ -13,7 +13,7 @@ import { Footer } from './components/Footer';
 
 const App: React.FC = () => {
   return (
-    <div className="bg-white">
+    <div className="bg-white min-h-screen">
       <Header />
       <main>
         <Hero />

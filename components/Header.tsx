@@ -1,8 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
     { href: '#features', label: 'Funcionalidades' },
@@ -12,26 +21,41 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" className="text-2xl font-bold text-teal-600">Ativo+</a>
+    <header className={`glass sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'shadow-lg py-3' : 'shadow-sm py-4'}`}>
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        <a href="#" className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
+          Ativo+
+        </a>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="text-gray-600 hover:text-teal-600 transition-colors">{link.label}</a>
+            <a 
+              key={link.href} 
+              href={link.href} 
+              className="text-slate-700 hover:text-teal-600 font-medium transition-all duration-300 relative group"
+            >
+              {link.label}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
           ))}
         </nav>
 
         <div className="hidden md:flex items-center">
-          <a href="#contact" className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+          <a 
+            href="#contact" 
+            className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+          >
             Solicitar Demo
           </a>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600 hover:text-teal-600 focus:outline-none">
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            className="text-slate-700 hover:text-teal-600 focus:outline-none p-2 rounded-lg hover:bg-teal-50 transition-colors"
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}></path>
             </svg>
@@ -41,12 +65,23 @@ export const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white pb-4">
-          <nav className="flex flex-col items-center space-y-4">
+        <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 pb-4 animate-fade-in-up">
+          <nav className="flex flex-col items-center space-y-4 pt-4">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className="text-gray-600 hover:text-teal-600 transition-colors">{link.label}</a>
+              <a 
+                key={link.href} 
+                href={link.href} 
+                onClick={() => setIsMenuOpen(false)} 
+                className="text-slate-700 hover:text-teal-600 font-medium transition-colors py-2"
+              >
+                {link.label}
+              </a>
             ))}
-            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300">
+            <a 
+              href="#contact" 
+              onClick={() => setIsMenuOpen(false)} 
+              className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg mt-2 transition-all duration-300"
+            >
               Solicitar Demo
             </a>
           </nav>

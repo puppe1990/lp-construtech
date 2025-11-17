@@ -7,6 +7,7 @@ import { Features } from './components/Features';
 import { Benefits } from './components/Benefits';
 import { Segments } from './components/Segments';
 import { Pricing } from './components/Pricing';
+import { Blog } from './components/Blog';
 import { CTA } from './components/CTA';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
@@ -22,6 +23,7 @@ const App: React.FC = () => {
         <Benefits />
         <Segments />
         <Pricing />
+        <Blog />
         <CTA />
         <Contact />
       </main>

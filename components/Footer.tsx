@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
                         <h4 className="font-bold text-white mb-6 text-lg">Empresa</h4>
                         <ul className="space-y-3">
                             <li><FooterLink href="#">Sobre</FooterLink></li>
-                            <li><FooterLink href="#">Blog</FooterLink></li>
+                            <li><FooterLink href="#blog">Blog</FooterLink></li>
                             <li><FooterLink href="#">Carreiras</FooterLink></li>
                             <li><FooterLink href="#contact">Contato</FooterLink></li>
                         </ul>

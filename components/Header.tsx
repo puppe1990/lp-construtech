@@ -17,6 +17,7 @@ export const Header: React.FC = () => {
     { href: '#features', label: 'Funcionalidades' },
     { href: '#benefits', label: 'Benefícios' },
     { href: '#pricing', label: 'Preços' },
+    { href: '#blog', label: 'Blog' },
     { href: '#contact', label: 'Contato' },
   ];
 

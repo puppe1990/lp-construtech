@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { MDXProvider } from '@mdx-js/react';
 
 interface BlogPostData {
   title: string;
@@ -9,13 +10,30 @@ interface BlogPostData {
   category: string;
   readTime: string;
   slug: string;
-  content?: string;
+  module?: any; // Componente MDX compilado
 }
 
 interface BlogPostProps {
   post: BlogPostData;
   onBack: () => void;
 }
+
+// Componentes customizados para MDX
+const components = {
+  h1: (props: any) => <h1 className="text-4xl font-bold text-[#0B1F36] mt-8 mb-4" {...props} />,
+  h2: (props: any) => <h2 className="text-3xl font-bold text-[#0B1F36] mt-6 mb-3" {...props} />,
+  h3: (props: any) => <h3 className="text-2xl font-bold text-[#0B1F36] mt-4 mb-2" {...props} />,
+  p: (props: any) => <p className="mb-4 text-lg leading-relaxed text-[#5F6B7A]" {...props} />,
+  ul: (props: any) => <ul className="list-disc list-inside mb-4 space-y-2 ml-4" {...props} />,
+  li: (props: any) => <li className="mb-2" {...props} />,
+  code: (props: any) => (
+    <code className="bg-[#0B1F36] text-white p-1 rounded" {...props} />
+  ),
+  pre: (props: any) => (
+    <pre className="bg-[#0B1F36] text-white p-4 rounded-xl overflow-x-auto my-4 font-mono text-sm" {...props} />
+  ),
+  strong: (props: any) => <strong className="text-[#0B1F36] font-bold" {...props} />,
+};
 
 export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
   const categoryColors: Record<string, string> = {
@@ -26,284 +44,9 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
     'Integração': 'bg-[#FFC857]'
   };
 
-  // Usa o conteúdo do post se disponível, senão usa fallback
-  const getPostContent = (slug: string, postContent?: string) => {
-    // Se tem conteúdo do MDX, usa ele
-    if (postContent) {
-      return postContent;
-    }
-    
-    // Fallback: conteúdo hardcoded
-    const contentMap: Record<string, string> = {
-      'reduzir-perdas-rastreabilidade': `
-# Como reduzir perdas em canteiros de obra com rastreabilidade
-
-As perdas em canteiros de obra representam um dos maiores desafios da construção civil brasileira. Estudos indicam que o desperdício médio pode chegar a 30-40% dos materiais, resultando em prejuízos bilionários anuais.
-
-## O problema das perdas não rastreadas
-
-Sem um sistema adequado de rastreabilidade, as construtoras enfrentam:
-
-- **Desperdício de materiais**: Materiais perdidos ou não localizados
-- **Roubo e extravio**: Falta de controle sobre equipamentos e ferramentas
-- **Retrabalho**: Necessidade de refazer serviços por falta de materiais
-- **Multas**: Perda de documentos e não conformidades
-
-## A solução: Rastreabilidade Híbrida
-
-A rastreabilidade híbrida combina três tecnologias complementares:
-
-### 1. QR Code
-- **Baixo custo**: Etiquetas acessíveis
-- **Fácil implementação**: Escaneamento via smartphone
-- **Ideal para**: EPIs, ferramentas manuais, documentos
-
-### 2. RFID
-- **Leitura à distância**: Até 10 metros
-- **Durabilidade**: Resistente a intempéries
-- **Ideal para**: Equipamentos pesados, containers, veículos
-
-### 3. IoT
-- **Monitoramento em tempo real**: Sensores conectados
-- **Dados contínuos**: Temperatura, umidade, localização
-- **Ideal para**: Materiais sensíveis, estruturas temporárias
-
-## Resultados comprovados
-
-Empresas que implementaram rastreabilidade híbrida reportaram:
-
-- **Redução de perdas**: Até R$ 60.000 por obra
-- **Payback**: 3-6 meses
-- **Redução de retrabalho**: 11 pontos percentuais
-- **Multas evitadas**: R$ 20.000+ por obra
-
-## Como implementar
-
-1. **Mapear ativos críticos**: Identifique os itens de maior valor
-2. **Escolher tecnologia adequada**: QR para baixo custo, RFID para durabilidade, IoT para monitoramento
-3. **Treinar equipe**: Capacitação é essencial para adoção
-4. **Integrar com sistemas**: Conecte com ERP e sistemas de gestão
-5. **Monitorar resultados**: Acompanhe métricas de redução de perdas
-
-## Conclusão
-
-A rastreabilidade híbrida não é mais um diferencial, mas uma necessidade para construtoras que buscam eficiência e redução de custos. Com payback rápido e resultados mensuráveis, é um investimento que se paga rapidamente.
-      `,
-      'compliance-nr18-automatizacao': `
-# Compliance NR-18: Automatize e evite multas de até R$ 44.007
-
-A Norma Regulamentadora 18 (NR-18) estabelece condições e meio ambiente de trabalho na indústria da construção. O não cumprimento pode resultar em multas que chegam a R$ 44.007 por infração.
-
-## O custo do não compliance
-
-Multas por não conformidade com NR-18 podem incluir:
-
-- **Multa por infração grave**: R$ 44.007,00
-- **Paralisação da obra**: Perdas diárias significativas
-- **Danos à reputação**: Impacto negativo na marca
-- **Responsabilidade criminal**: Em casos de acidentes
-
-## Desafios do compliance manual
-
-O processo tradicional de compliance apresenta várias dificuldades:
-
-### Documentação dispersa
-- Planilhas em Excel
-- Documentos físicos
-- Falta de versionamento
-- Dificuldade de auditoria
-
-### Controle de prazos
-- EPIs vencidos não identificados
-- Treinamentos atrasados
-- Inspeções não realizadas
-- Multas por falta de documentação
-
-## A solução: Compliance automatizado
-
-Sistemas automatizados de compliance oferecem:
-
-### Dossiês digitais automáticos
-- **Organização centralizada**: Todos os documentos em um só lugar
-- **Versionamento**: Histórico completo de alterações
-- **Acesso rápido**: Busca instantânea por qualquer critério
-
-### Alertas inteligentes
-- **EPIs vencidos**: Notificações automáticas antes do vencimento
-- **Treinamentos pendentes**: Lembretes para reciclagem
-- **Inspeções**: Agendamento e acompanhamento automático
-
-### Trilha de auditoria
-- **LGPD compliant**: Rastreamento de todas as ações
-- **Relatórios automáticos**: Geração de documentos para fiscalização
-- **Comprovação**: Evidências digitais com timestamp
-
-## Benefícios mensuráveis
-
-Empresas que automatizaram o compliance reportaram:
-
-- **Multas evitadas**: R$ 20.000+ por obra
-- **Tempo economizado**: 80% menos tempo em documentação
-- **Conformidade**: 100% de conformidade em auditorias
-- **Produtividade**: Mais tempo para atividades operacionais
-      `,
-      'roi-construcao-tecnologia': `
-# ROI em construção: Como calcular o retorno de investimento em tecnologia
-
-Investir em tecnologia para construção civil requer análise cuidadosa do retorno sobre investimento (ROI). Neste artigo, você aprenderá a calcular o ROI e entenderá como soluções como o Ativo+ oferecem payback rápido.
-
-## Por que calcular o ROI?
-
-O cálculo de ROI ajuda a:
-
-- **Justificar investimentos**: Demonstrar valor para stakeholders
-- **Comparar soluções**: Avaliar diferentes opções de tecnologia
-- **Medir sucesso**: Acompanhar resultados ao longo do tempo
-- **Tomar decisões**: Baseadas em dados, não em intuição
-
-## Fórmula básica de ROI
-
-\`\`\`
-ROI = (Ganho - Investimento) / Investimento × 100
-\`\`\`
-
-### Exemplo prático
-
-**Investimento**: R$ 50.000 (solução tecnológica)
-**Ganho anual**: R$ 200.000 (redução de perdas, multas evitadas, etc.)
-
-\`\`\`
-ROI = (200.000 - 50.000) / 50.000 × 100
-ROI = 300%
-\`\`\`
-
-## Caso real: Ativo+
-
-### Investimento
-- **Plano Operations**: R$ 4.000-6.000/mês
-- **Implementação**: R$ 10.000 (one-time)
-- **Total primeiro ano**: R$ 58.000-82.000
-
-### Retorno
-- **Redução de perdas**: R$ 60.000/obra
-- **Multas evitadas**: R$ 20.000/obra
-- **Eficiência**: R$ 15.000/obra
-- **Total**: R$ 95.000/obra
-
-### ROI
-\`\`\`
-ROI = (95.000 - 82.000) / 82.000 × 100
-ROI = 15,8% no primeiro ano
-Payback: 3-6 meses
-\`\`\`
-      `,
-      'offline-first-canteiros': `
-# Offline-First: Por que sua solução precisa funcionar sem internet
-
-Em canteiros de obra, a conectividade é frequentemente instável ou inexistente. Soluções offline-first garantem que a operação continue mesmo sem internet.
-
-## O problema da dependência de internet
-
-Muitas soluções tecnológicas dependem completamente de conexão, causando:
-
-- **Paralisação**: Sem internet, o sistema não funciona
-- **Perda de dados**: Informações não salvas são perdidas
-- **Frustração**: Equipe não consegue trabalhar
-- **Custos**: Necessidade de melhorar infraestrutura de rede
-
-## A solução: Offline-First
-
-Sistemas offline-first funcionam completamente sem internet e sincronizam quando a conexão é restabelecida.
-
-### Benefícios
-
-- **Continuidade**: Operação ininterrupta
-- **Confiabilidade**: Dados sempre salvos localmente
-- **Produtividade**: Equipe trabalha sem interrupções
-- **Economia**: Não requer investimento em infraestrutura de rede
-
-## Como funciona
-
-1. **Armazenamento local**: Dados salvos no dispositivo
-2. **Sincronização automática**: Quando internet volta, sincroniza
-3. **Resolução de conflitos**: Sistema gerencia conflitos automaticamente
-4. **Transparência**: Usuário não percebe a diferença
-      `,
-      'integracao-bim-erp': `
-# Integração BIM e ERP: Conectando o projeto à execução
-
-A integração entre modelos BIM e sistemas ERP elimina retrabalho e melhora a comunicação entre projeto e obra.
-
-## O desafio da desconexão
-
-Projeto e execução frequentemente trabalham com sistemas desconectados:
-
-- **Retrabalho**: Informações duplicadas em diferentes sistemas
-- **Erros**: Dados desatualizados entre sistemas
-- **Tempo perdido**: Transferência manual de informações
-- **Falta de visibilidade**: Dificuldade de acompanhar progresso
-
-## A solução: Integração nativa
-
-Sistemas integrados conectam BIM e ERP automaticamente.
-
-### Benefícios
-
-- **Sincronização automática**: Dados sempre atualizados
-- **Redução de erros**: Eliminação de entrada manual
-- **Visibilidade completa**: Acompanhamento em tempo real
-- **Eficiência**: Menos tempo em tarefas administrativas
-
-## Casos de uso
-
-### Ingestão BIM
-- Importação automática de modelos IFC
-- Extração de quantitativos
-- Comparação projeto vs. execução
-
-### Sincronização ERP
-- Integração com Sienge, TOTVS, Protheus
-- Sincronização bidirecional
-- Relatórios unificados
-      `,
-      'dashboards-financeiros-decisoes': `
-# Dashboards financeiros: Transformando dados em decisões estratégicas
-
-Dashboards financeiros oferecem visibilidade completa sobre a rentabilidade de cada obra e ativo.
-
-## O problema da falta de visibilidade
-
-Sem dashboards adequados, gestores enfrentam:
-
-- **Decisões baseadas em intuição**: Falta de dados concretos
-- **Análise demorada**: Tempo gasto coletando informações
-- **Oportunidades perdidas**: Não identificação de problemas rapidamente
-- **ROI desconhecido**: Dificuldade de medir retorno
-
-## A solução: Dashboards inteligentes
-
-Dashboards financeiros transformam dados brutos em insights acionáveis.
-
-### Métricas principais
-
-- **ROI por ativo**: Retorno de cada equipamento
-- **Desperdício evitado**: Economia mensurável
-- **Uso de EPIs**: Conformidade e custos
-- **Benchmarks**: Comparação com mercado
-
-## Benefícios
-
-- **Decisões rápidas**: Dados em tempo real
-- **Identificação de problemas**: Alertas automáticos
-- **Otimização**: Identificação de oportunidades
-- **Comunicação**: Relatórios claros para stakeholders
-      `
-    };
-
-    return contentMap[slug] || 'Conteúdo do artigo em breve...';
-  };
-
-  const content = getPostContent(post.slug, (post as any).content);
+  // Renderiza o componente MDX se disponível
+  // O módulo pode estar em post.module ou post.module.default
+  const MDXContent = post.module?.default || post.module;
 
   return (
     <article className="py-24 bg-white min-h-screen">
@@ -346,92 +89,15 @@ Dashboards financeiros transformam dados brutos em insights acionáveis.
 
         {/* Conteúdo do artigo */}
         <div className="text-[#5F6B7A] leading-relaxed">
-          {content.split('\n\n').map((block, blockIndex) => {
-            const trimmedBlock = block.trim();
-            if (!trimmedBlock) return null;
-
-            // Headers
-            if (trimmedBlock.startsWith('# ')) {
-              return (
-                <h1 key={blockIndex} className="text-4xl font-bold text-[#0B1F36] mt-8 mb-4">
-                  {trimmedBlock.substring(2)}
-                </h1>
-              );
-            }
-            if (trimmedBlock.startsWith('## ')) {
-              return (
-                <h2 key={blockIndex} className="text-3xl font-bold text-[#0B1F36] mt-6 mb-3">
-                  {trimmedBlock.substring(3)}
-                </h2>
-              );
-            }
-            if (trimmedBlock.startsWith('### ')) {
-              return (
-                <h3 key={blockIndex} className="text-2xl font-bold text-[#0B1F36] mt-4 mb-2">
-                  {trimmedBlock.substring(4)}
-                </h3>
-              );
-            }
-
-            // Code blocks
-            if (trimmedBlock.startsWith('```')) {
-              const codeMatch = trimmedBlock.match(/```\n?(.+?)\n?```/s);
-              if (codeMatch) {
-                return (
-                  <pre key={blockIndex} className="bg-[#0B1F36] text-white p-4 rounded-xl overflow-x-auto my-4 font-mono text-sm">
-                    <code>{codeMatch[1]}</code>
-                  </pre>
-                );
-              }
-            }
-
-            // Lists
-            if (trimmedBlock.includes('\n- ')) {
-              const items = trimmedBlock.split('\n').filter(line => line.trim().startsWith('- '));
-              return (
-                <ul key={blockIndex} className="list-disc list-inside mb-4 space-y-2 ml-4">
-                  {items.map((item, itemIndex) => {
-                    const cleanItem = item.replace(/^-\s*/, '');
-                    // Check for bold text
-                    const boldMatch = cleanItem.match(/\*\*(.+?)\*\*: (.+)/);
-                    if (boldMatch) {
-                      return (
-                        <li key={itemIndex} className="mb-2">
-                          <strong className="text-[#0B1F36]">{boldMatch[1]}</strong>: {boldMatch[2]}
-                        </li>
-                      );
-                    }
-                    return <li key={itemIndex} className="mb-2">{cleanItem}</li>;
-                  })}
-                </ul>
-              );
-            }
-
-            // Regular paragraphs
-            return (
-              <p key={blockIndex} className="mb-4 text-lg leading-relaxed">
-                {trimmedBlock.split('\n').map((line, lineIndex) => {
-                  // Handle inline bold
-                  const parts = line.split(/(\*\*.+?\*\*)/g);
-                  return (
-                    <React.Fragment key={lineIndex}>
-                      {parts.map((part, partIndex) => {
-                        if (part.startsWith('**') && part.endsWith('**')) {
-                          return (
-                            <strong key={partIndex} className="text-[#0B1F36]">
-                              {part.slice(2, -2)}
-                            </strong>
-                          );
-                        }
-                        return <span key={partIndex}>{part}</span>;
-                      })}
-                      {lineIndex < line.split('\n').length - 1 && <br />}
-                    </React.Fragment>
-                  );
-                })}
-              </p>
-            );
-          })}
+          {MDXContent ? (
+            <MDXProvider components={components}>
+              <MDXContent />
+            </MDXProvider>
+          ) : (
+            <p className="text-center py-12 text-[#5F6B7A]">
+              Conteúdo do artigo não disponível.
+            </p>
+          )}
         </div>
 
         {/* CTA no final */}

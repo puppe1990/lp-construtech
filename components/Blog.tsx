@@ -120,19 +120,15 @@ const BlogCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void 
   );
 };
 
-interface BlogProps {
-  onReadMore?: (post: BlogPost) => void;
-}
-
-export const Blog: React.FC<BlogProps> = ({ onReadMore }) => {
+export const Blog: React.FC = () => {
   const handleReadMore = (post: BlogPost) => {
-    if (onReadMore) {
-      onReadMore(post);
-    } else {
-      // Fallback: scroll para o topo e mostra o artigo
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Redireciona para a página do blog com o artigo
+    window.location.hash = `#blog/${post.slug}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Mostra apenas os 3 primeiros artigos na landing page
+  const featuredPosts = blogPosts.slice(0, 3);
 
   return (
     <section id="blog" className="py-24 bg-white">
@@ -150,7 +146,7 @@ export const Blog: React.FC<BlogProps> = ({ onReadMore }) => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {blogPosts.map((post, index) => (
+          {featuredPosts.map((post, index) => (
             <BlogCard key={index} post={post} onReadMore={handleReadMore} />
           ))}
         </div>

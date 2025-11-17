@@ -5,6 +5,7 @@ import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import { remarkFrontmatterExport } from './utils/remark-frontmatter-export';
 import { mdxFrontmatterPlugin } from './utils/mdx-frontmatter-plugin';
+import { sitemapPlugin } from './utils/vite-plugin-sitemap';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -24,6 +25,9 @@ export default defineConfig(({ mode }) => {
           rehypePlugins: [],
         }),
         mdxFrontmatterPlugin(), // Injeta frontmatter após compilação MDX
+        sitemapPlugin({
+          domain: 'https://ativo-mais.com.br', // Altere para o domínio real do seu site
+        }),
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

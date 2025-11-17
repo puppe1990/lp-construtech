@@ -20,24 +20,43 @@ interface BlogPostProps {
 
 // Componentes customizados para MDX
 const components = {
-  h1: (props: any) => <h1 className="text-4xl font-bold text-[#0B1F36] mt-12 mb-6 leading-tight" {...props} />,
-  h2: (props: any) => <h2 className="text-3xl font-bold text-[#0B1F36] mt-10 mb-5 leading-tight" {...props} />,
-  h3: (props: any) => <h3 className="text-2xl font-bold text-[#0B1F36] mt-8 mb-4 leading-tight" {...props} />,
-  p: (props: any) => <p className="mb-6 text-lg leading-8 text-[#374151] max-w-none" {...props} />,
-  ul: (props: any) => <ul className="list-disc list-outside mb-6 space-y-3 ml-6 text-lg leading-8 text-[#374151]" {...props} />,
-  ol: (props: any) => <ol className="list-decimal list-outside mb-6 space-y-3 ml-6 text-lg leading-8 text-[#374151]" {...props} />,
-  li: (props: any) => <li className="mb-1 pl-2" {...props} />,
+  h1: (props: any) => <h1 className="text-3xl md:text-4xl font-bold text-[#0B1F36] mt-12 mb-6 leading-tight tracking-tight" {...props} />,
+  h2: (props: any) => <h2 className="text-2xl md:text-3xl font-bold text-[#0B1F36] mt-12 mb-6 leading-tight tracking-tight pt-4" {...props} />,
+  h3: (props: any) => <h3 className="text-xl md:text-2xl font-bold text-[#0B1F36] mt-10 mb-4 leading-tight tracking-tight pt-2" {...props} />,
+  h4: (props: any) => <h4 className="text-lg md:text-xl font-semibold text-[#0B1F36] mt-8 mb-3 leading-tight" {...props} />,
+  p: (props: any) => <p className="mb-6 text-base md:text-lg leading-relaxed text-[#374151] font-normal" style={{ lineHeight: '1.75' }} {...props} />,
+  ul: (props: any) => <ul className="list-disc list-outside mb-6 space-y-2 ml-6 text-base md:text-lg leading-relaxed text-[#374151]" style={{ lineHeight: '1.75' }} {...props} />,
+  ol: (props: any) => <ol className="list-decimal list-outside mb-6 space-y-2 ml-6 text-base md:text-lg leading-relaxed text-[#374151]" style={{ lineHeight: '1.75' }} {...props} />,
+  li: (props: any) => <li className="mb-2 pl-2" {...props} />,
   code: (props: any) => (
-    <code className="bg-[#F3F4F6] text-[#0B1F36] px-2 py-1 rounded text-base font-mono border border-[#E5E7EB]" {...props} />
+    <code className="bg-[#F3F4F6] text-[#0B1F36] px-2 py-1 rounded text-sm md:text-base font-mono border border-[#E5E7EB]" {...props} />
   ),
   pre: (props: any) => (
-    <pre className="bg-[#1F2937] text-[#F9FAFB] p-6 rounded-xl overflow-x-auto my-6 font-mono text-sm leading-6 border border-[#374151]" {...props} />
+    <pre className="bg-[#1F2937] text-[#F9FAFB] p-4 md:p-6 rounded-xl overflow-x-auto my-6 font-mono text-sm leading-6 border border-[#374151]" {...props} />
   ),
   strong: (props: any) => <strong className="text-[#0B1F36] font-bold" {...props} />,
-  blockquote: (props: any) => (
-    <blockquote className="border-l-4 border-[#FF6B2C] pl-6 py-2 my-6 italic text-[#374151] text-lg leading-8 bg-[#F9FAFB]" {...props} />
+  em: (props: any) => <em className="italic text-[#374151]" {...props} />,
+  a: (props: any) => (
+    <a className="text-[#FF6B2C] hover:text-[#0B1F36] underline underline-offset-2 transition-colors" {...props} />
   ),
-  hr: (props: any) => <hr className="my-8 border-t border-[#E5E7EB]" {...props} />,
+  blockquote: (props: any) => (
+    <blockquote className="border-l-4 border-[#FF6B2C] pl-6 py-4 my-8 italic text-[#374151] text-base md:text-lg leading-relaxed bg-[#F9FAFB] rounded-r-lg" style={{ lineHeight: '1.75' }} {...props} />
+  ),
+  hr: (props: any) => <hr className="my-10 border-t-2 border-[#E5E7EB]" {...props} />,
+  img: (props: any) => (
+    <img className="w-full rounded-xl my-8 shadow-lg" {...props} />
+  ),
+  table: (props: any) => (
+    <div className="overflow-x-auto my-8">
+      <table className="min-w-full border-collapse border border-[#E5E7EB] rounded-lg" {...props} />
+    </div>
+  ),
+  th: (props: any) => (
+    <th className="border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-left font-semibold text-[#0B1F36]" {...props} />
+  ),
+  td: (props: any) => (
+    <td className="border border-[#E5E7EB] px-4 py-3 text-[#374151]" {...props} />
+  ),
 };
 
 export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
@@ -55,7 +74,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
 
   return (
     <article className="py-16 md:py-24 bg-white min-h-screen">
-      <div className="container mx-auto px-6 max-w-3xl">
+      <div className="container mx-auto px-6 max-w-4xl">
         {/* Header do artigo */}
         <div className="mb-12">
           <button
@@ -93,10 +112,20 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
         </div>
 
         {/* Conteúdo do artigo */}
-        <div>
+        <div className="prose prose-lg max-w-none">
           {MDXContent ? (
             <MDXProvider components={components}>
-              <div className="blog-content">
+              <div 
+                className="blog-content mx-auto" 
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  color: '#374151',
+                  lineHeight: '1.75',
+                  fontSize: '18px',
+                  maxWidth: '680px',
+                  padding: '0 1rem'
+                }}
+              >
                 <MDXContent />
               </div>
             </MDXProvider>

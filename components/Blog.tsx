@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-interface BlogPost {
+export interface BlogPost {
   title: string;
   excerpt: string;
   date: string;
@@ -68,7 +68,7 @@ const blogPosts: BlogPost[] = [
   }
 ];
 
-const BlogCard: React.FC<{ post: BlogPost }> = ({ post }) => {
+const BlogCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void }> = ({ post, onReadMore }) => {
   const categoryColors: Record<string, string> = {
     'Gestão': 'bg-[#12B886]',
     'Compliance': 'bg-[#FF6B2C]',
@@ -106,21 +106,34 @@ const BlogCard: React.FC<{ post: BlogPost }> = ({ post }) => {
             <p className="text-xs text-[#5F6B7A]">{post.date}</p>
           </div>
         </div>
-        <a 
-          href={`#blog/${post.slug}`}
-          className="text-[#FF6B2C] font-semibold hover:text-[#0B1F36] transition-colors flex items-center gap-2"
+        <button
+          onClick={() => onReadMore(post)}
+          className="text-[#FF6B2C] font-semibold hover:text-[#0B1F36] transition-colors flex items-center gap-2 cursor-pointer"
         >
           Ler mais
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </a>
+        </button>
       </div>
     </article>
   );
 };
 
-export const Blog: React.FC = () => {
+interface BlogProps {
+  onReadMore?: (post: BlogPost) => void;
+}
+
+export const Blog: React.FC<BlogProps> = ({ onReadMore }) => {
+  const handleReadMore = (post: BlogPost) => {
+    if (onReadMore) {
+      onReadMore(post);
+    } else {
+      // Fallback: scroll para o topo e mostra o artigo
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="blog" className="py-24 bg-white">
       <div className="container mx-auto px-6">
@@ -138,7 +151,7 @@ export const Blog: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {blogPosts.map((post, index) => (
-            <BlogCard key={index} post={post} />
+            <BlogCard key={index} post={post} onReadMore={handleReadMore} />
           ))}
         </div>
         
@@ -154,4 +167,6 @@ export const Blog: React.FC = () => {
     </section>
   );
 };
+
+export { blogPosts };
 

@@ -23,8 +23,8 @@ export const Header: React.FC = () => {
   return (
     <header className={`glass sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'shadow-lg py-3' : 'shadow-sm py-4'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
-        <a href="#" className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300">
-          Ativo+
+        <a href="#" className="text-2xl font-bold text-[#0B1F36] hover:text-[#FF6B2C] transition-colors duration-300">
+          Ativo<span className="text-[#FF6B2C]">+</span>
         </a>
         
         {/* Desktop Navigation */}
@@ -33,10 +33,10 @@ export const Header: React.FC = () => {
             <a 
               key={link.href} 
               href={link.href} 
-              className="text-slate-700 hover:text-teal-600 font-medium transition-all duration-300 relative group"
+              className="text-[#5F6B7A] hover:text-[#0B1F36] font-medium transition-all duration-300 relative group"
             >
               {link.label}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF6B2C] group-hover:w-full transition-all duration-300"></span>
             </a>
           ))}
         </nav>
@@ -44,7 +44,7 @@ export const Header: React.FC = () => {
         <div className="hidden md:flex items-center">
           <a 
             href="#contact" 
-            className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            className="btn-primary font-semibold py-2.5 px-6 rounded-xl transform hover:scale-105 transition-all duration-300"
           >
             Solicitar Demo
           </a>
@@ -68,19 +68,19 @@ export const Header: React.FC = () => {
         <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 pb-4 animate-fade-in-up">
           <nav className="flex flex-col items-center space-y-4 pt-4">
             {navLinks.map((link) => (
-              <a 
-                key={link.href} 
-                href={link.href} 
-                onClick={() => setIsMenuOpen(false)} 
-                className="text-slate-700 hover:text-teal-600 font-medium transition-colors py-2"
-              >
-                {link.label}
-              </a>
+            <a 
+              key={link.href} 
+              href={link.href} 
+              onClick={() => setIsMenuOpen(false)} 
+              className="text-[#5F6B7A] hover:text-[#0B1F36] font-medium transition-colors py-2"
+            >
+              {link.label}
+            </a>
             ))}
             <a 
               href="#contact" 
               onClick={() => setIsMenuOpen(false)} 
-              className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg mt-2 transition-all duration-300"
+              className="btn-primary font-semibold py-3 px-8 rounded-xl mt-2 transition-all duration-300"
             >
               Solicitar Demo
             </a>

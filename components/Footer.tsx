@@ -2,18 +2,18 @@
 import React from 'react';
 
 const FooterLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
-    <a href={href} className="text-slate-500 hover:text-teal-600 transition-colors duration-300 font-medium">{children}</a>
+    <a href={href} className="text-[#8FB4D9] hover:text-[#FF6B2C] transition-colors duration-300 font-medium">{children}</a>
 );
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="bg-gradient-to-b from-slate-900 to-slate-800 text-white">
+        <footer className="bg-[#0B1F36] text-white">
             <div className="container mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     {/* Column 1: Brand */}
                     <div className="col-span-1 md:col-span-1">
-                        <h3 className="text-3xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent mb-4">Ativo+</h3>
-                        <p className="text-slate-300 max-w-xs leading-relaxed">Torre de controle para ativos de canteiro. Transformando a gestão da construção civil.</p>
+                        <h3 className="text-3xl font-bold text-white mb-2">Ativo<span className="text-[#FF6B2C]">+</span></h3>
+                        <p className="text-[#8FB4D9] max-w-xs leading-relaxed">Torre de controle para ativos de canteiro. Transformando a gestão da construção civil.</p>
                     </div>
 
                     {/* Column 2: Produto */}
@@ -50,8 +50,8 @@ export const Footer: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-slate-700 text-center">
-                    <p className="text-slate-400">&copy; 2024 Ativo+. Todos os direitos reservados.</p>
+                <div className="pt-8 border-t border-[#5F6B7A] text-center">
+                    <p className="text-[#8FB4D9]">&copy; 2024 Ativo+. Todos os direitos reservados.</p>
                 </div>
             </div>
         </footer>

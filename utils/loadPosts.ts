@@ -13,10 +13,21 @@ export interface BlogPostMetadata {
 export interface BlogPost extends BlogPostMetadata {
   content?: string;
   module?: any;
+  originalDate?: string; // Data original do frontmatter para ordenação
 }
 
-// Importa todos os posts dinamicamente
-const postModules = import.meta.glob('../posts/*.mdx', { eager: true });
+// Importa módulos MDX processados para renderização
+// @ts-ignore - import.meta.glob é uma feature do Vite
+const postModules = import.meta.glob('../posts/*.mdx', { 
+  eager: true
+}) as Record<string, any>;
+
+// Importa arquivos raw para extrair frontmatter
+// Nota: ?raw deve fazer o Vite retornar o conteúdo como string
+// @ts-ignore - import.meta.glob é uma feature do Vite
+const postRawModules = import.meta.glob('../posts/*.mdx?raw', { 
+  eager: true
+}) as Record<string, string>;
 
 // Função para parsear frontmatter YAML simples
 function parseFrontmatter(frontmatter: string): Record<string, string> {
@@ -46,9 +57,44 @@ function parseFrontmatter(frontmatter: string): Record<string, string> {
 
 // Função para extrair metadados do módulo MDX processado
 function extractMetadataFromModule(module: any, slug: string): BlogPostMetadata | null {
-  // O plugin MDX pode exportar frontmatter
+  // Verifica todas as propriedades do módulo
+  const moduleKeys = Object.keys(module || {});
+  const allModuleProps: any = {};
+  
+  // Coleta todas as propriedades do módulo para debug
+  moduleKeys.forEach(key => {
+    allModuleProps[key] = module[key];
+  });
+  
+  console.log(`[extractMetadataFromModule] Verificando módulo para ${slug}:`, {
+    hasFrontmatter: !!module.frontmatter,
+    hasTitle: !!module.title,
+    keys: moduleKeys,
+    moduleType: typeof module,
+    moduleDefault: typeof module.default,
+    moduleDefaultKeys: module.default ? Object.keys(module.default) : [],
+    allProps: allModuleProps
+  });
+  
+  // O plugin MDX exporta frontmatter como propriedade nomeada do módulo
   if (module.frontmatter) {
     const fm = module.frontmatter;
+    console.log(`[extractMetadataFromModule] Frontmatter encontrado diretamente para ${slug}:`, fm);
+    return {
+      title: fm.title || '',
+      excerpt: fm.excerpt || '',
+      date: fm.date || '',
+      author: fm.author || 'Equipe Ativo+',
+      category: fm.category || 'Geral',
+      readTime: fm.readTime || '5 min',
+      slug: fm.slug || slug
+    };
+  }
+  
+  // Tenta acessar via module.default.frontmatter (caso o export esteja no componente)
+  if (module.default && typeof module.default === 'object' && module.default.frontmatter) {
+    const fm = module.default.frontmatter;
+    console.log(`[extractMetadataFromModule] Frontmatter encontrado em default para ${slug}:`, fm);
     return {
       title: fm.title || '',
       excerpt: fm.excerpt || '',
@@ -73,101 +119,59 @@ function extractMetadataFromModule(module: any, slug: string): BlogPostMetadata 
     };
   }
   
+  console.log(`[extractMetadataFromModule] Nenhum metadado encontrado para ${slug}. Módulo completo:`, module);
   return null;
 }
 
-// Função para ler arquivos MDX e extrair frontmatter em runtime
-async function readMDXFile(slug: string): Promise<BlogPostMetadata | null> {
+// Função para ler arquivos MDX e extrair frontmatter
+function readMDXFile(path: string): BlogPostMetadata | null {
   try {
-    // Tenta importar o arquivo como texto raw
-    const module = await import(`../posts/${slug}.mdx?raw`);
-    const content = typeof module === 'string' ? module : module.default || '';
+    // Procura o conteúdo raw no glob
+    const rawContent = postRawModules[path];
+    
+    if (!rawContent || typeof rawContent !== 'string') {
+      console.warn(`[readMDXFile] Conteúdo raw não encontrado para: ${path}`);
+      return null;
+    }
     
     // Extrai frontmatter usando regex
-    const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-    if (frontmatterMatch) {
-      const frontmatter = frontmatterMatch[1];
-      const metadata = parseFrontmatter(frontmatter);
-      
-      return {
-        title: metadata.title || '',
-        excerpt: metadata.excerpt || '',
-        date: metadata.date || '',
-        author: metadata.author || 'Equipe Ativo+',
-        category: metadata.category || 'Geral',
-        readTime: metadata.readTime || '5 min',
-        slug: metadata.slug || slug
-      };
+    const frontmatterMatch = rawContent.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+    if (!frontmatterMatch) {
+      console.warn(`[readMDXFile] Frontmatter não encontrado em: ${path}`);
+      return null;
     }
+    
+    const frontmatter = frontmatterMatch[1];
+    const metadata = parseFrontmatter(frontmatter);
+    
+    // Extrai slug do caminho
+    const slug = path
+      .replace(/^.*posts\//, '')
+      .replace(/\.mdx$/, '');
+    
+    return {
+      title: metadata.title || '',
+      excerpt: metadata.excerpt || '',
+      date: metadata.date || '',
+      author: metadata.author || 'Equipe Ativo+',
+      category: metadata.category || 'Geral',
+      readTime: metadata.readTime || '5 min',
+      slug: metadata.slug || slug
+    };
   } catch (error) {
-    console.warn(`Não foi possível ler ${slug}.mdx:`, error);
+    console.warn(`[readMDXFile] Erro ao ler ${path}:`, error);
   }
   return null;
 }
 
-// Mapeamento de metadados dos posts (fallback se não conseguir extrair do MDX)
-// Este mapeamento é gerado automaticamente dos arquivos MDX na pasta posts/
-const postsMetadata: Record<string, BlogPostMetadata> = {
-  'reduzir-perdas-rastreabilidade': {
-    title: "Como reduzir perdas em canteiros de obra com rastreabilidade",
-    excerpt: "Descubra como a rastreabilidade híbrida (QR/RFID/IoT) pode reduzir perdas em até R$ 60.000 por obra e aumentar a eficiência operacional.",
-    date: "2024-01-15",
-    author: "Equipe Ativo+",
-    category: "Gestão",
-    readTime: "5 min",
-    slug: "reduzir-perdas-rastreabilidade"
-  },
-  'compliance-nr18-automatizacao': {
-    title: "Compliance NR-18: Automatize e evite multas de até R$ 44.007",
-    excerpt: "Entenda como automatizar o compliance NR-18 e NR-6 com dossiês digitais, alertas automáticos e trilha de auditoria completa.",
-    date: "2024-01-10",
-    author: "Equipe Ativo+",
-    category: "Compliance",
-    readTime: "7 min",
-    slug: "compliance-nr18-automatizacao"
-  },
-  'roi-construcao-tecnologia': {
-    title: "ROI em construção: Como calcular o retorno de investimento em tecnologia",
-    excerpt: "Aprenda a calcular o ROI de soluções tecnológicas para construção civil e descubra como o Ativo+ oferece payback de 3-6 meses.",
-    date: "2024-01-05",
-    author: "Equipe Ativo+",
-    category: "Financeiro",
-    readTime: "6 min",
-    slug: "roi-construcao-tecnologia"
-  },
-  'offline-first-canteiros': {
-    title: "Offline-First: Por que sua solução precisa funcionar sem internet",
-    excerpt: "Entenda a importância de soluções offline-first em canteiros de obra e como isso impacta a produtividade e confiabilidade dos dados.",
-    date: "2023-12-28",
-    author: "Equipe Ativo+",
-    category: "Tecnologia",
-    readTime: "4 min",
-    slug: "offline-first-canteiros"
-  },
-  'integracao-bim-erp': {
-    title: "Integração BIM e ERP: Conectando o projeto à execução",
-    excerpt: "Saiba como integrar modelos BIM com sistemas ERP para melhorar a comunicação entre projeto e obra, reduzindo retrabalho.",
-    date: "2023-12-20",
-    author: "Equipe Ativo+",
-    category: "Integração",
-    readTime: "8 min",
-    slug: "integracao-bim-erp"
-  },
-  'dashboards-financeiros-decisoes': {
-    title: "Dashboards financeiros: Transformando dados em decisões estratégicas",
-    excerpt: "Descubra como dashboards financeiros podem ajudar construtoras a tomar decisões baseadas em dados e otimizar a rentabilidade.",
-    date: "2023-12-15",
-    author: "Equipe Ativo+",
-    category: "Financeiro",
-    readTime: "5 min",
-    slug: "dashboards-financeiros-decisoes"
-  }
-};
 
 // Função auxiliar para formatar data
 function formatDate(dateString: string): string {
   try {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   } catch {
@@ -175,50 +179,62 @@ function formatDate(dateString: string): string {
   }
 }
 
+
 // Carrega todos os arquivos MDX da pasta posts/
 export async function loadPosts(): Promise<BlogPost[]> {
   const posts: BlogPost[] = [];
   
-  // Itera sobre todos os módulos importados
+  const modulePaths = Object.keys(postModules);
+  const rawPaths = Object.keys(postRawModules);
+  console.log('[loadPosts] Módulos encontrados:', modulePaths.length, modulePaths);
+  console.log('[loadPosts] Arquivos raw encontrados:', rawPaths.length, rawPaths);
+  
+  // Itera sobre todos os módulos processados
   for (const path in postModules) {
     const module = postModules[path] as any;
     
-    // Extrai o slug do nome do arquivo
-    const slug = path
-      .replace('../posts/', '')
-      .replace('.mdx', '');
+    // Extrai o slug do caminho
+    let slug = path
+      .replace(/^.*posts\//, '')
+      .replace(/\.mdx$/, '');
     
-    // Tenta extrair metadados do módulo MDX processado primeiro
+    console.log('[loadPosts] Processando:', slug);
+    
+    // Tenta extrair metadados do módulo primeiro (caso o MDX exporte frontmatter)
     let metadata = extractMetadataFromModule(module, slug);
     
-    // Se não conseguiu, tenta ler o arquivo diretamente
+    // Se não conseguiu, tenta ler o arquivo raw usando readMDXFile
     if (!metadata) {
-      metadata = await readMDXFile(slug);
+      metadata = readMDXFile(path);
     }
     
-    // Se ainda não conseguiu, usa o mapeamento fallback
+    // Se ainda não conseguiu, pula este arquivo
     if (!metadata) {
-      metadata = postsMetadata[slug];
+      console.warn(`[loadPosts] Não foi possível extrair metadados de ${slug}.mdx - arquivo será ignorado`);
+      continue;
     }
     
-    if (metadata) {
-      // Preserva a data original para ordenação
-      const originalDate = metadata.date;
-      
-      posts.push({
-        ...metadata,
-        date: formatDate(originalDate), // Formata a data para exibição
-        module: module.default || module
-      });
-    }
+    // Preserva a data original para ordenação
+    const originalDate = metadata.date;
+    
+    posts.push({
+      ...metadata,
+      date: formatDate(originalDate), // Formata a data para exibição
+      originalDate: originalDate, // Mantém data original para ordenação
+      module: module?.default || module || null
+    });
+    
+    console.log(`[loadPosts] Post adicionado: ${metadata.title}`);
   }
   
+  console.log(`[loadPosts] Total de posts carregados: ${posts.length}`);
+  
   // Ordena por data (mais recente primeiro)
+  // Usa a data original do frontmatter para ordenação correta
   posts.sort((a, b) => {
-    // Usa a data original do metadata para ordenação
-    const dateA = new Date(postsMetadata[a.slug]?.date || a.date).getTime();
-    const dateB = new Date(postsMetadata[b.slug]?.date || b.date).getTime();
-    return dateB - dateA;
+    const dateA = a.originalDate ? new Date(a.originalDate).getTime() : 0;
+    const dateB = b.originalDate ? new Date(b.originalDate).getTime() : 0;
+    return dateB - dateA; // Mais recente primeiro
   });
   
   return posts;
@@ -231,6 +247,20 @@ export async function loadPost(slug: string): Promise<BlogPost | null> {
 }
 
 // Função síncrona para obter metadados (útil para casos onde não precisa do módulo)
-export function getPostMetadata(slug: string): BlogPostMetadata | null {
-  return postsMetadata[slug] || null;
+// Nota: Esta função é assíncrona na prática, mas mantém interface síncrona para compatibilidade
+export async function getPostMetadata(slug: string): Promise<BlogPostMetadata | null> {
+  try {
+    const post = await loadPost(slug);
+    return post ? {
+      title: post.title,
+      excerpt: post.excerpt,
+      date: post.date,
+      author: post.author,
+      category: post.category,
+      readTime: post.readTime,
+      slug: post.slug
+    } : null;
+  } catch {
+    return null;
+  }
 }

@@ -64,17 +64,20 @@ export const Blog: React.FC = () => {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        if (cachedPosts) {
+        if (cachedPosts && cachedPosts.length > 0) {
+          console.log('[Blog] Usando cache com', cachedPosts.length, 'posts');
           setPosts(cachedPosts);
           setLoading(false);
         } else {
+          console.log('[Blog] Carregando posts...');
           const loadedPosts = await loadPosts();
+          console.log('[Blog] Posts carregados:', loadedPosts.length, loadedPosts);
           cachedPosts = loadedPosts;
           setPosts(loadedPosts);
           setLoading(false);
         }
       } catch (error) {
-        console.error('Erro ao carregar posts:', error);
+        console.error('[Blog] Erro ao carregar posts:', error);
         setLoading(false);
       }
     }
@@ -89,6 +92,9 @@ export const Blog: React.FC = () => {
 
   // Mostra apenas os 3 primeiros artigos na landing page
   const featuredPosts = posts.slice(0, 3);
+  
+  console.log('[Blog] Total de posts:', posts.length);
+  console.log('[Blog] Featured posts:', featuredPosts.length);
 
   if (loading) {
     return (
@@ -117,11 +123,19 @@ export const Blog: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredPosts.map((post, index) => (
-            <BlogCard key={post.slug || index} post={post} onReadMore={handleReadMore} />
-          ))}
-        </div>
+        {featuredPosts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {featuredPosts.map((post, index) => (
+              <BlogCard key={post.slug || index} post={post} onReadMore={handleReadMore} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-[#5F6B7A] text-lg">
+              Nenhum artigo encontrado. Verifique o console para mais detalhes.
+            </p>
+          </div>
+        )}
         
         <div className="text-center">
           <a 
@@ -145,7 +159,4 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   cachedPosts = posts;
   return posts;
 }
-
-// Exporta posts para compatibilidade
-export const blogPosts = cachedPosts || [];
 

@@ -2,6 +2,9 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
+import remarkFrontmatter from 'remark-frontmatter';
+import { remarkFrontmatterExport } from './utils/remark-frontmatter-export';
+import { mdxFrontmatterPlugin } from './utils/mdx-frontmatter-plugin';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -14,9 +17,13 @@ export default defineConfig(({ mode }) => {
         react(),
         mdx({
           jsxImportSource: 'react',
-          remarkPlugins: [],
+          remarkPlugins: [
+            remarkFrontmatter, // Parseia o frontmatter primeiro
+            remarkFrontmatterExport, // Depois adiciona o export
+          ],
           rehypePlugins: [],
-        })
+        }),
+        mdxFrontmatterPlugin(), // Injeta frontmatter após compilação MDX
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

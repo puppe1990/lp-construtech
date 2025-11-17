@@ -20,19 +20,24 @@ interface BlogPostProps {
 
 // Componentes customizados para MDX
 const components = {
-  h1: (props: any) => <h1 className="text-4xl font-bold text-[#0B1F36] mt-8 mb-4" {...props} />,
-  h2: (props: any) => <h2 className="text-3xl font-bold text-[#0B1F36] mt-6 mb-3" {...props} />,
-  h3: (props: any) => <h3 className="text-2xl font-bold text-[#0B1F36] mt-4 mb-2" {...props} />,
-  p: (props: any) => <p className="mb-4 text-lg leading-relaxed text-[#5F6B7A]" {...props} />,
-  ul: (props: any) => <ul className="list-disc list-inside mb-4 space-y-2 ml-4" {...props} />,
-  li: (props: any) => <li className="mb-2" {...props} />,
+  h1: (props: any) => <h1 className="text-4xl font-bold text-[#0B1F36] mt-12 mb-6 leading-tight" {...props} />,
+  h2: (props: any) => <h2 className="text-3xl font-bold text-[#0B1F36] mt-10 mb-5 leading-tight" {...props} />,
+  h3: (props: any) => <h3 className="text-2xl font-bold text-[#0B1F36] mt-8 mb-4 leading-tight" {...props} />,
+  p: (props: any) => <p className="mb-6 text-lg leading-8 text-[#374151] max-w-none" {...props} />,
+  ul: (props: any) => <ul className="list-disc list-outside mb-6 space-y-3 ml-6 text-lg leading-8 text-[#374151]" {...props} />,
+  ol: (props: any) => <ol className="list-decimal list-outside mb-6 space-y-3 ml-6 text-lg leading-8 text-[#374151]" {...props} />,
+  li: (props: any) => <li className="mb-1 pl-2" {...props} />,
   code: (props: any) => (
-    <code className="bg-[#0B1F36] text-white p-1 rounded" {...props} />
+    <code className="bg-[#F3F4F6] text-[#0B1F36] px-2 py-1 rounded text-base font-mono border border-[#E5E7EB]" {...props} />
   ),
   pre: (props: any) => (
-    <pre className="bg-[#0B1F36] text-white p-4 rounded-xl overflow-x-auto my-4 font-mono text-sm" {...props} />
+    <pre className="bg-[#1F2937] text-[#F9FAFB] p-6 rounded-xl overflow-x-auto my-6 font-mono text-sm leading-6 border border-[#374151]" {...props} />
   ),
   strong: (props: any) => <strong className="text-[#0B1F36] font-bold" {...props} />,
+  blockquote: (props: any) => (
+    <blockquote className="border-l-4 border-[#FF6B2C] pl-6 py-2 my-6 italic text-[#374151] text-lg leading-8 bg-[#F9FAFB]" {...props} />
+  ),
+  hr: (props: any) => <hr className="my-8 border-t border-[#E5E7EB]" {...props} />,
 };
 
 export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
@@ -49,13 +54,13 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
   const MDXContent = post.module?.default || post.module;
 
   return (
-    <article className="py-24 bg-white min-h-screen">
-      <div className="container mx-auto px-6 max-w-4xl">
+    <article className="py-16 md:py-24 bg-white min-h-screen">
+      <div className="container mx-auto px-6 max-w-3xl">
         {/* Header do artigo */}
-        <div className="mb-8">
+        <div className="mb-12">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-[#5F6B7A] hover:text-[#0B1F36] transition-colors mb-6"
+            className="flex items-center gap-2 text-[#5F6B7A] hover:text-[#0B1F36] transition-colors mb-8 text-base"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -63,7 +68,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
             Voltar para o blog
           </button>
 
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
             <span className={`${categoryColors[post.category] || 'bg-[#5F6B7A]'} text-white text-xs font-bold px-3 py-1 rounded-full`}>
               {post.category}
             </span>
@@ -72,12 +77,12 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
             <span className="text-sm text-[#5F6B7A]">{post.date}</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#0B1F36] mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0B1F36] mb-8 leading-tight">
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-3 pb-6 border-b border-[#F5F2EB]">
-            <div className="w-10 h-10 rounded-full bg-[#0B1F36] flex items-center justify-center">
+          <div className="flex items-center gap-3 pb-8 border-b-2 border-[#E5E7EB]">
+            <div className="w-10 h-10 rounded-full bg-[#0B1F36] flex items-center justify-center flex-shrink-0">
               <span className="text-white text-sm font-bold">A+</span>
             </div>
             <div>
@@ -88,10 +93,12 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
         </div>
 
         {/* Conteúdo do artigo */}
-        <div className="text-[#5F6B7A] leading-relaxed">
+        <div>
           {MDXContent ? (
             <MDXProvider components={components}>
-              <MDXContent />
+              <div className="blog-content">
+                <MDXContent />
+              </div>
             </MDXProvider>
           ) : (
             <p className="text-center py-12 text-[#5F6B7A]">
@@ -101,9 +108,9 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
         </div>
 
         {/* CTA no final */}
-        <div className="mt-12 pt-8 border-t border-[#F5F2EB] bg-[#F5F2EB] p-8 rounded-xl">
+        <div className="mt-16 pt-8 border-t-2 border-[#E5E7EB] bg-[#F9FAFB] p-8 rounded-xl">
           <h3 className="text-2xl font-bold text-[#0B1F36] mb-4">Quer saber mais?</h3>
-          <p className="text-[#5F6B7A] mb-6">
+          <p className="text-[#374151] mb-6 text-lg leading-7">
             Entre em contato conosco e solicite uma demonstração gratuita do Ativo+.
           </p>
           <a 

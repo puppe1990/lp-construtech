@@ -14,6 +14,8 @@ export default defineConfig(({ mode }) => {
         react(),
         mdx({
           jsxImportSource: 'react',
+          remarkPlugins: [],
+          rehypePlugins: [],
         })
       ],
       define: {

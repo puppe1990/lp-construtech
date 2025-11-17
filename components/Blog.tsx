@@ -1,72 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { loadPosts, BlogPost } from '../utils/loadPosts';
 
-export interface BlogPost {
-  title: string;
-  excerpt: string;
-  date: string;
-  author: string;
-  category: string;
-  readTime: string;
-  slug: string;
-}
-
-const blogPosts: BlogPost[] = [
-  {
-    title: "Como reduzir perdas em canteiros de obra com rastreabilidade",
-    excerpt: "Descubra como a rastreabilidade híbrida (QR/RFID/IoT) pode reduzir perdas em até R$ 60.000 por obra e aumentar a eficiência operacional.",
-    date: "15 Jan 2024",
-    author: "Equipe Ativo+",
-    category: "Gestão",
-    readTime: "5 min",
-    slug: "reduzir-perdas-rastreabilidade"
-  },
-  {
-    title: "Compliance NR-18: Automatize e evite multas de até R$ 44.007",
-    excerpt: "Entenda como automatizar o compliance NR-18 e NR-6 com dossiês digitais, alertas automáticos e trilha de auditoria completa.",
-    date: "10 Jan 2024",
-    author: "Equipe Ativo+",
-    category: "Compliance",
-    readTime: "7 min",
-    slug: "compliance-nr18-automatizacao"
-  },
-  {
-    title: "ROI em construção: Como calcular o retorno de investimento em tecnologia",
-    excerpt: "Aprenda a calcular o ROI de soluções tecnológicas para construção civil e descubra como o Ativo+ oferece payback de 3-6 meses.",
-    date: "5 Jan 2024",
-    author: "Equipe Ativo+",
-    category: "Financeiro",
-    readTime: "6 min",
-    slug: "roi-construcao-tecnologia"
-  },
-  {
-    title: "Offline-First: Por que sua solução precisa funcionar sem internet",
-    excerpt: "Entenda a importância de soluções offline-first em canteiros de obra e como isso impacta a produtividade e confiabilidade dos dados.",
-    date: "28 Dez 2023",
-    author: "Equipe Ativo+",
-    category: "Tecnologia",
-    readTime: "4 min",
-    slug: "offline-first-canteiros"
-  },
-  {
-    title: "Integração BIM e ERP: Conectando o projeto à execução",
-    excerpt: "Saiba como integrar modelos BIM com sistemas ERP para melhorar a comunicação entre projeto e obra, reduzindo retrabalho.",
-    date: "20 Dez 2023",
-    author: "Equipe Ativo+",
-    category: "Integração",
-    readTime: "8 min",
-    slug: "integracao-bim-erp"
-  },
-  {
-    title: "Dashboards financeiros: Transformando dados em decisões estratégicas",
-    excerpt: "Descubra como dashboards financeiros podem ajudar construtoras a tomar decisões baseadas em dados e otimizar a rentabilidade.",
-    date: "15 Dez 2023",
-    author: "Equipe Ativo+",
-    category: "Financeiro",
-    readTime: "5 min",
-    slug: "dashboards-financeiros-decisoes"
-  }
-];
+// Cache para os posts carregados
+let cachedPosts: BlogPost[] | null = null;
 
 const BlogCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void }> = ({ post, onReadMore }) => {
   const categoryColors: Record<string, string> = {
@@ -121,6 +58,29 @@ const BlogCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void 
 };
 
 export const Blog: React.FC = () => {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        if (cachedPosts) {
+          setPosts(cachedPosts);
+          setLoading(false);
+        } else {
+          const loadedPosts = await loadPosts();
+          cachedPosts = loadedPosts;
+          setPosts(loadedPosts);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
+
   const handleReadMore = (post: BlogPost) => {
     // Redireciona para a página do blog com o artigo
     window.location.hash = `#blog/${post.slug}`;
@@ -128,7 +88,19 @@ export const Blog: React.FC = () => {
   };
 
   // Mostra apenas os 3 primeiros artigos na landing page
-  const featuredPosts = blogPosts.slice(0, 3);
+  const featuredPosts = posts.slice(0, 3);
+
+  if (loading) {
+    return (
+      <section id="blog" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            <p className="text-[#5F6B7A]">Carregando artigos...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="blog" className="py-24 bg-white">
@@ -147,7 +119,7 @@ export const Blog: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {featuredPosts.map((post, index) => (
-            <BlogCard key={index} post={post} onReadMore={handleReadMore} />
+            <BlogCard key={post.slug || index} post={post} onReadMore={handleReadMore} />
           ))}
         </div>
         
@@ -164,5 +136,16 @@ export const Blog: React.FC = () => {
   );
 };
 
-export { blogPosts };
+// Exporta função para obter posts (usado em outros componentes)
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (cachedPosts) {
+    return cachedPosts;
+  }
+  const posts = await loadPosts();
+  cachedPosts = posts;
+  return posts;
+}
+
+// Exporta posts para compatibilidade
+export const blogPosts = cachedPosts || [];
 

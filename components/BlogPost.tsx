@@ -26,8 +26,14 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBack }) => {
     'Integração': 'bg-[#FFC857]'
   };
 
-  // Conteúdo baseado no slug
-  const getPostContent = (slug: string) => {
+  // Usa o conteúdo do post se disponível, senão usa fallback
+  const getPostContent = (slug: string, postContent?: string) => {
+    // Se tem conteúdo do MDX, usa ele
+    if (postContent) {
+      return postContent;
+    }
+    
+    // Fallback: conteúdo hardcoded
     const contentMap: Record<string, string> = {
       'reduzir-perdas-rastreabilidade': `
 # Como reduzir perdas em canteiros de obra com rastreabilidade
@@ -297,7 +303,7 @@ Dashboards financeiros transformam dados brutos em insights acionáveis.
     return contentMap[slug] || 'Conteúdo do artigo em breve...';
   };
 
-  const content = getPostContent(post.slug);
+  const content = getPostContent(post.slug, (post as any).content);
 
   return (
     <article className="py-24 bg-white min-h-screen">

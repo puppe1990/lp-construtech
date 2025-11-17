@@ -2,8 +2,9 @@
 import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { BlogPost, blogPosts } from './Blog';
+import { BlogPost, getBlogPosts } from './Blog';
 import { BlogPost as BlogPostComponent } from './BlogPost';
+import { loadPost } from '../utils/loadPosts';
 
 interface BlogPageProps {
   onBackToHome: () => void;
@@ -11,6 +12,23 @@ interface BlogPageProps {
 
 export const BlogPage: React.FC<BlogPageProps> = ({ onBackToHome }) => {
   const [selectedPost, setSelectedPost] = React.useState<BlogPost | null>(null);
+  const [posts, setPosts] = React.useState<BlogPost[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // Carrega posts dinamicamente
+  React.useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const loadedPosts = await getBlogPosts();
+        setPosts(loadedPosts);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
 
   const handleReadMore = (post: BlogPost) => {
     setSelectedPost(post);
@@ -26,25 +44,38 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBackToHome }) => {
 
   // Verifica se há um post na URL ao carregar
   React.useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#blog/')) {
-      const slug = hash.replace('#blog/', '');
-      const post = blogPosts.find(p => p.slug === slug);
-      if (post) {
-        setSelectedPost(post);
-      }
-    }
-  }, []);
-
-  // Escuta mudanças no hash
-  React.useEffect(() => {
-    const handleHashChange = () => {
+    async function loadPostFromUrl() {
       const hash = window.location.hash;
       if (hash.startsWith('#blog/')) {
         const slug = hash.replace('#blog/', '');
-        const post = blogPosts.find(p => p.slug === slug);
-        if (post) {
-          setSelectedPost(post);
+        try {
+          const post = await loadPost(slug);
+          if (post) {
+            setSelectedPost(post);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar post:', error);
+        }
+      }
+    }
+    if (posts.length > 0) {
+      loadPostFromUrl();
+    }
+  }, [posts]);
+
+  // Escuta mudanças no hash
+  React.useEffect(() => {
+    const handleHashChange = async () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#blog/')) {
+        const slug = hash.replace('#blog/', '');
+        try {
+          const post = await loadPost(slug);
+          if (post) {
+            setSelectedPost(post);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar post:', error);
         }
       } else if (hash === '#blog' || hash === '') {
         setSelectedPost(null);
@@ -63,8 +94,22 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBackToHome }) => {
     'Integração': 'bg-[#FFC857]'
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Header />
+        <main className="py-24">
+          <div className="container mx-auto px-6 text-center">
+            <p className="text-[#5F6B7A]">Carregando artigos...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Agrupar posts por categoria
-  const postsByCategory = blogPosts.reduce((acc, post) => {
+  const postsByCategory = posts.reduce((acc, post) => {
     if (!acc[post.category]) {
       acc[post.category] = [];
     }
@@ -111,13 +156,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBackToHome }) => {
                 <div className="flex items-center gap-4 mb-8">
                   <div className={`${categoryColors[category] || 'bg-[#5F6B7A]'} w-1 h-12 rounded-full`}></div>
                   <h2 className="text-3xl md:text-4xl font-bold text-[#0B1F36]">{category}</h2>
-                  <span className="text-[#5F6B7A]">({posts.length} artigos)</span>
+                  <span className="text-[#5F6B7A]">({posts.length} {posts.length === 1 ? 'artigo' : 'artigos'})</span>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {posts.map((post, index) => (
+                  {posts.map((post) => (
                     <article 
-                      key={index}
+                      key={post.slug}
                       className="group bg-white p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-[#F5F2EB] hover:border-[#FF6B2C] hover:-translate-y-2 cursor-pointer"
                       style={{ padding: '24px', borderRadius: '12px' }}
                       onClick={() => handleReadMore(post)}
